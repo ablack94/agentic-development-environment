@@ -1,0 +1,32 @@
+services:
+  gitea:
+    image: docker.gitea.com/gitea:1.25.4-rootless
+    restart: always
+    entrypoint: ["/bin/sh", "/setup/setup-gitea.sh"]
+    environment:
+      GITEA__security__INSTALL_LOCK: "true"
+      GITEA__database__DB_TYPE: sqlite3
+      GITEA__server__DOMAIN: gitea
+      GITEA__server__ROOT_URL: http://gitea:3000/
+      GITEA__server__HTTP_PORT: "3000"
+      GITEA__service__DISABLE_REGISTRATION: "true"
+      GITEA_ADMIN_USER: admin
+      GITEA_ADMIN_PASSWORD: admin
+      GITEA_ADMIN_EMAIL: admin@localhost
+    ports:
+      - "3000:3000"
+    volumes:
+      - gitea-data:/var/lib/gitea
+      - gitea-config:/etc/gitea
+      - ./scripts/setup-gitea.sh:/setup/setup-gitea.sh:ro
+      - ./shared:/shared
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:3000/api/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
+volumes:
+  gitea-data:
+  gitea-config:
