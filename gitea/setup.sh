@@ -7,6 +7,12 @@ GITEA_PID=$!
 # Forward signals to the Gitea process
 trap "kill -TERM $GITEA_PID 2>/dev/null" TERM INT QUIT
 
+# Wait for gitea to be up
+until curl -fsS "${GITEA__server__ROOT_URL}api/healthz" >/dev/null; do
+  sleep 1
+done
+echo "Gitea is up"
+
 # --- Create admin user (idempotent) ---
 admin_user="${GITEA_ADMIN_USER:-admin}"
 echo "[setup] Creating admin user '${admin_user}'..."

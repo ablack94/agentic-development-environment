@@ -1,0 +1,45 @@
+{
+	"goal": "Deliver a working clone of the POSIX `tail` utility, written in Rust.",
+	"scope": {
+		"mustHave": [
+			"`tail <file>` — print the last 10 lines of a file (default behavior)",
+			"`tail -n <count> <file>` — print the last N lines",
+			"`tail -c <count> <file>` — print the last N bytes",
+			"`tail -f <file>` — follow a file, printing appended data as it grows",
+			"Reading from stdin when no file argument is given",
+			"Support for multiple file arguments with headers between them"
+		],
+		"niceToHave": [
+			"`tail -n +<count>` — print starting from line N",
+			"`tail -q` — suppress headers when multiple files are given",
+			"`tail -F` — follow by name (reopen on rename/rotation)"
+		],
+		"outOfScope": [
+			"GNU-specific extensions (--pid, --max-unchanged-stats, --retry, etc.)",
+			"Internationalization or locale-aware behavior"
+		]
+	},
+	"requirements": [
+		"Create a gitea repository named `tail-rs` to host the project.",
+		"Implement in Rust using idiomatic patterns (clap for arg parsing is acceptable).",
+		"Use gitea issues for planning. Each issue should represent a single deliverable increment.",
+		"Work incrementally: each pull request should be small, focused, and independently testable.",
+		"Spawn an adversarial review agent for each pull request. The reviewer should look for correctness bugs, edge cases, and deviations from POSIX behavior."
+	],
+	"operatingPrinciples": [
+		"You are the orchestration agent. You plan and coordinate but never write code directly — you spawn subagents to implement, test, and review.",
+		"Break the work into issues before any code is written. Sequence issues so each builds on the last.",
+		"When a subagent gets stuck or produces poor results, re-scope the task rather than retrying the same prompt."
+	],
+	"acceptanceCriteria": [
+		"All mustHave features pass manual smoke tests against equivalent GNU tail output.",
+		"The binary compiles with `cargo build --release` with no warnings.",
+		"At least basic unit tests exist for line-counting and byte-counting logic.",
+		"`tail -f` correctly streams appended content without busy-waiting (use inotify or polling with sleep)."
+	],
+	"delivery": [
+		"Create a gitea release tagged with a semver version (e.g., v0.1.0).",
+		"Attach the release-mode binary (linux/amd64) to the release.",
+		"The release description should summarize implemented features and known limitations."
+	]
+}

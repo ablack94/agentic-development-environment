@@ -1,3 +1,8 @@
+networks:
+  sandbox:
+    internal: true
+  ingress: {}
+
 volumes:
   gitea-data:
   gitea-config:
@@ -7,7 +12,10 @@ services:
   gitea:
     image: docker.gitea.com/gitea:1.25.4-rootless
     restart: always
-    entrypoint: ["/bin/sh", "/setup/setup-gitea.sh"]
+    entrypoint: ["/bin/sh", "/setup/setup.sh"]
+    networks:
+      - sandbox
+      - ingress
     environment:
       GITEA__security__INSTALL_LOCK: "true"
       GITEA__database__DB_TYPE: sqlite3
@@ -23,7 +31,7 @@ services:
     volumes:
       - gitea-data:/var/lib/gitea
       - gitea-config:/etc/gitea
-      - ./scripts/setup-gitea.sh:/setup/setup-gitea.sh:ro
+      - ./gitea/setup.sh:/setup/setup.sh:ro
       - ./shared:/shared
     healthcheck:
       test: ["CMD", "curl", "-sf", "http://localhost:3000/api/healthz"]
@@ -35,6 +43,9 @@ services:
   audit:
     build:
       context: ./audit
+    networks:
+      - sandbox
+      - ingress
     environment:
       PORT: 8080
       AUDIT_DB: "/etc/audit/audit.sqlite"
@@ -42,22 +53,42 @@ services:
       - "3002:8080"
     volumes:
       - audit-data:/etc/audit
+    healthcheck:
+      test: ["CMD", "curl", "-sf", "http://localhost:8080/api/healthz"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 5s
+
+  gateway:
+    image: nginx:alpine
+    networks:
+      - sandbox
+      - ingress
+    ports:
+      - "3001:8080"
+    volumes:
+      - ./gateway/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+    depends_on:
+      - mark
 
   mark:
     build:
-      context: ./agent 
+      context: ./agent
+    networks:
+      - sandbox
     environment:
       GITEA_HOST: "http://gitea:3000"
       GITEA_ACCESS_TOKEN_PATH: /etc/agent/gitea-access-token.txt
       CLAUDE_CODE_OAUTH_TOKEN: "${CLAUDE_CODE_OAUTH_TOKEN}"
       AGENT_ID: mark
       AGENT_AUDIT_URL: "http://audit:8080/audits"
-    ports:
-      - "3001:8080"
     volumes:
       - ./shared/gitea-token-mark:/etc/agent/gitea-access-token.txt
       - ./prompts/BASE.md:/etc/agent/prompts/0.md
       - ./prompts/PROJECT_MANAGER.md:/etc/agent/prompts/1.md
     depends_on:
-      - audit
-      - gitea
+      gitea:
+        condition: service_healthy
+      audit:
+        condition: service_healthy

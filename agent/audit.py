@@ -13,10 +13,8 @@ def main() -> None:
     # Build audit record
     event = json.load(sys.stdin)
     agent_id = os.getenv("AGENT_ID")
-    now = dt.datetime.now(dt.timezone.utc)
     audit_record = {
         "agent_id": agent_id,
-        "time": now.isoformat(),
         "type": "hook",
         "event": event,
     }

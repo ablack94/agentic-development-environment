@@ -19,6 +19,11 @@ fi
     --env GITEA_ACCESS_TOKEN="${gitea_access_token}" \
     -- /usr/local/bin/gitea-mcp -t stdio
 
+# Configure git credentials for Gitea
+git config --global credential.helper store
+gitea_url=$(echo "${gitea_host}" | sed 's|://|://'"${AGENT_ID}:${gitea_access_token}"'@|')
+echo "${gitea_url}" > ~/.git-credentials
+
 # Make the user-level CLAUDE.md file
 cat /etc/agent/prompts/*.md > ~/.claude/CLAUDE.md
 
