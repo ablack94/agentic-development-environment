@@ -29,7 +29,7 @@ Claude agents are surprisingly capable on long-running, goal-oriented tasks when
 
 **Audit Service** records every agent action with timestamps for full traceability.
 
-**Networking** -- Two Docker networks provide isolation. Agents live only on an `internal` network (no outbound internet). Gitea and the audit service bridge both the internal and `ingress` networks so they remain reachable from the host via published ports. Note that Claude Code's API calls to Anthropic are also blocked by this — the agent will need an egress proxy or allowlist to make API calls.
+**Networking** -- Two Docker networks provide isolation. Agents, Gitea, and the audit service all live on an `internal` sandbox network with no outbound internet. The nginx gateway is the only service that bridges both the sandbox and `ingress` networks. It serves as the sole entry point from the host (via virtual hosts: `gitea.localhost`, `audit.localhost`, `mark.localhost`) and also acts as a whitelisted egress proxy — agents route Claude API calls through the gateway on port 8443, which forwards to `api.anthropic.com`. This keeps agents network-isolated while allowing only the specific upstream they need.
 
 ## Roles
 
