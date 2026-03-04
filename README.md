@@ -65,6 +65,8 @@ http://gitea.localhost:3001/mark
 # Inspect audits
 ./scripts/dump-audits.sh
 
+# See old_runs/ for example audit trails from real runs
+
 # Teardown / Cleanup
 docker compose down --volumes
 ```
