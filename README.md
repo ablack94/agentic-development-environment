@@ -45,7 +45,7 @@ Agents are configured with composable role prompts (see `prompts/`):
 
 - Docker (or Podman) and Docker Compose
 - A Claude OAuth token (set via `CLAUDE_OAUTH_TOKEN` in `compose.yaml`)
-- TCP ports 3000/3001/3002
+- TCP port 3001 (for gateway access from host)
 - curl (for scripts/run-scenario.sh)
 
 ### Run
@@ -56,6 +56,11 @@ docker compose up -d
 
 # Run a scenario
 ./scripts/run-scenario.sh scenarios/build_tail_1.json
+
+# Visit gitea in a web browser (login with admin/admin)
+http://gitea.localhost:3001/
+# Specifically you'll want to see mark's user account
+http://gitea.localhost:3001/mark
 
 # Inspect audits
 ./scripts/dump-audits.sh

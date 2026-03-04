@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-GATEWAY_URL="${GATEWAY_URL:-http://localhost:3001}"
+GATEWAY_PORT="${GATEWAY_PORT:-3001}"
 AGENT="${AGENT:-mark}"
 
 if [[ $# -ne 1 ]]; then
@@ -16,7 +16,7 @@ if [[ ! -f "$scenario" ]]; then
   exit 1
 fi
 
-url="$GATEWAY_URL/agents/$AGENT/command"
+url="http://${AGENT}.localhost:${GATEWAY_PORT}/command"
 echo "Sending $(basename "$scenario") to $url ..."
 curl -sS -X POST "$url" \
   -H "Content-Type: application/json" \

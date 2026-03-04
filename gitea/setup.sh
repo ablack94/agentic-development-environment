@@ -7,8 +7,10 @@ GITEA_PID=$!
 # Forward signals to the Gitea process
 trap "kill -TERM $GITEA_PID 2>/dev/null" TERM INT QUIT
 
+gitea_url="http://localhost:${GITEA__server__HTTP_PORT}"
+
 # Wait for gitea to be up
-until curl -fsS "${GITEA__server__ROOT_URL}api/healthz" >/dev/null; do
+until curl -fsS "${gitea_url}/api/healthz" >/dev/null; do
   sleep 1
 done
 echo "Gitea is up"

@@ -45,10 +45,13 @@ def get_audits():
         cursor = conn.cursor()
         cursor.execute("SELECT * FROM audit")
         all_records = cursor.fetchall()
-        for idx in range(len(all_records)):
-            # Parse JSON object so we don't store a string
-            all_records[idx][1] = json.loads(all_records[idx][1])
-        return jsonify(all_records)
+        resp = []
+        for audit_id, audit_jso_str in all_records:
+            resp.append(
+                (audit_id, json.loads(audit_jso_str))
+            )
+            
+        return jsonify(resp)
 
 @app.route("/api/healthz", methods=["GET"])
 def get_healthz():
